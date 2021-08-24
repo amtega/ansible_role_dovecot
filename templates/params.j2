@@ -1,0 +1,6 @@
+{% for param in (vars 
+                 | select('match', '^dovecot_param_.*')
+                 | map('regex_replace', '^dovecot_param_(.*)', '\\1')) %}
+  {{ dovecot_params.update( {param: vars['dovecot_param_' ~ param]} ) }}
+{% endfor %}
+{{ dovecot_params }}

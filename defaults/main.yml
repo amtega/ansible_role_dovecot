@@ -1,2 +1,84 @@
 ---
 # Role default lower priority variables
+
+# The parameters of this role support two syntaxes
+#
+# adding the role prefix to each native parameter:
+#
+#   dovecot_param_<p1>: <v1>
+#   dovecot_param_<p2>: <v2>
+#
+# or adding the native parameters in a dictionary: 
+#
+#   dovecot_params:
+#     <p1>: <v1>
+#     <p2>: <v2>
+#
+# if a parameter is present on both sintaxes, the role prefix syntax 
+# takes precedence.
+#            
+# the parameters in this role are not restricted, you can use any of 
+# them and dovecot will check the validity of the configuration. 
+#
+# see doveconf(1) for default and current parametres.
+#
+#
+# example configuration:
+# ----------------------
+#
+#  dovecot_param_passdb: 
+#    driver: pam
+#  dovecot_param_userdb:
+#    driver: passwd
+#    args: "blocking=no"
+#    override_fields: "uid=vmail gid=vmail"
+#  dovecot_params:
+#    ssl: "no"
+#    namespace: 
+#      inbox: "yes"
+#      separator: "/"
+#
+dovecot_params: {}
+
+# dovecot can use additional files to configure different types of 
+# dictionaries. Valid types can be "raw" for exact contents or "kv" 
+# for key/value contents.
+#
+# dovecot_files accepts a list of dicts.
+#
+#  - filename: "dovecot-passdb-ldap.conf.ext"
+#    description: "Configure ldap for password checks"
+#    type: "kv"
+#    state: present
+#    content:
+#      hosts = "ldap.example.com"
+#      dn = "cn=Manager,dc=example,dc=com"
+#      dnpass = "XXXXXXXX"
+#      auth_bind = "yes"
+#      ldap_version = 3
+#      base = dc=example,dc=com"
+#      user_filter = "(uid=%n)"
+#      pass_attrs = "uid=user,userPassword=password" 
+#      pass_filter = "(uid=%u)"
+#      iterate_filter = "(objectClass=posixAccount)"
+#      blocking = "yes"
+#
+#    - filename: "dovecot-dict-quota.conf.ext"
+#      description: "Dictionary for quotas"
+#      type: "raw"
+#      state: present
+#      content: |-
+#        connect = host=sqlserver dbname=dovecot user=dovecot password=XXXXXX
+#        map {
+#          pattern = priv/quota/storage
+#          table = quota
+#          username_field = user_id
+#          value_field = bytes
+#        }
+#        map {
+#          pattern = priv/quota/messages
+#          table = quota
+#          username_field = user_id
+#          value_field = messages
+#        }
+dovecot_files: []

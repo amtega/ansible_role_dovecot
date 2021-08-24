@@ -1,0 +1,8 @@
+---
+# Role service tasks
+
+- name: Enable and start dovecot
+  service:
+    name: dovecot
+    enabled: yes
+    state: started
