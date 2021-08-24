@@ -1,0 +1,39 @@
+#jinja2: lstrip_blocks: True, trim_blocks: True
+{% macro to_nice_conf(params, indent_inc=2) %}
+  {% set stacked_params = ['passdb', 'userdb'] %}
+  {% if params is mapping %}
+    {% for param, value in params.items() %}
+      {% if param is in stacked_params %}
+        {% if value is iterable and value is not string %}
+          {% for stacked_value in value %}
+            {{- param ~ ' {' }}
+              {% for k,v in stacked_value.items() %}
+                {{- ( k ~ ' = ' ~ v ) | indent(indent_inc, true) }}
+              {% endfor %}
+            {{- '}' }}
+          {% endfor %}
+        {% else %}
+          {{- param ~ ' = ' ~ value | indent(indent_inc, true) }}
+        {% endif %}
+      {% elif value is mapping %}
+        {{- param ~ ' {\n' }}
+        {{- to_nice_conf(value) | indent(indent_inc, true) }}
+        {{- '}' }}
+      {% elif value is iterable and value is not string %}
+        {% if '_plugins' in param %}
+          {{- param ~ ' = " ' ~ value | join(' ') ~ ' "' }}
+        {% else %}
+          {{- param ~ ' = ' ~ value | join(' ') }}
+        {% endif %}
+      {% elif value == 'None' %}
+        {{- param ~ ' = ' }}
+      {% else %}
+        {{- param ~ ' = ' ~ value }}
+      {% endif %}
+    {% endfor %}
+  {% else %}
+    {{- params }}
+  {% endif %}
+{% endmacro %}
+
+{{ to_nice_conf(_dovecot_params) }}

@@ -1,0 +1,7 @@
+#jinja2: lstrip_blocks: True, trim_blocks: True
+#
+# {{ dovecot_file.description | d('support file') }}
+#
+{% if dovecot_file.content is defined %}
+  {{- dovecot_file.content }}
+{% endif %}

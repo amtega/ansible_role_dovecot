@@ -1,2 +1,20 @@
 ---
 # Role tasks
+
+- name: Install dovecot daemon
+  import_tasks: install.yml
+  tags:
+    - role::dovecot
+    - role::dovecot::install
+
+- name: Configure dovecot daemon
+  import_tasks: configure.yml
+  tags:
+    - role::dovecot
+    - role::dovecot::configure
+
+- name: Setup dovecot daemon service
+  import_tasks: service.yml
+  tags:
+    - role::dovecot
+    - role::dovecot::service
