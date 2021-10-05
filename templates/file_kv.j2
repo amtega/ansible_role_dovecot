@@ -1,0 +1,16 @@
+#jinja2: lstrip_blocks: True, trim_blocks: True
+#
+# {{ dovecot_file.description | d('configuration file') }}
+#
+{% if dovecot_file.content is defined %}
+  {% if dovecot_file.content is mapping %}
+    {% for k, v in dovecot_file.content.items()  %}
+      {% if v is defined and v %}
+        {% if v is iterable and v is not string %}
+          {% set v = v | join(' ') %}
+        {% endif %}
+        {{- k ~ ' = ' ~ v }}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+{% endif %}

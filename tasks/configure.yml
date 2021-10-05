@@ -1,0 +1,83 @@
+---
+# Role configure tasks
+
+- name: Configure local.conf file
+  ansible.builtin.template:
+    src: config.j2
+    dest: "{{ dovecot_config_dir }}/local.conf"
+    lstrip_blocks: yes
+    trim_blocks: yes
+    owner: "{{ dovecot_owner | d(dovecot_default_owner) }}"
+    group: "{{ dovecot_group | d(dovecot_default_group) }}"
+    mode: "{{ dovecot_mode | d(dovecot_default_mode) }}"
+  vars: 
+    _dovecot_params: >-
+      {{ lookup('template', 'params.j2') 
+         | regex_replace('\\\\', '\\')
+         | from_yaml }}
+  notify:
+    - dovecot reload
+
+- name: Configure kv support files
+  ansible.builtin.template:
+    src: file_kv.j2
+    dest: "{{ dovecot_config_dir }}/{{ dovecot_file.filename }}"
+    lstrip_blocks: "yes"
+    trim_blocks: "yes"
+    owner: "{{ dovecot_owner | d(dovecot_default_owner) }}"
+    group: "{{ dovecot_group | d(dovecot_default_group) }}"
+    mode: "{{ dovecot_mode | d(dovecot_default_mode) }}"
+  loop: "{{ dovecot_files | list }}"
+  loop_control:
+    loop_var: dovecot_file
+    label: "{{ dovecot_file.filename }}"
+  when:
+    - dovecot_file.filename is defined
+    - dovecot_file.state == 'present'
+    - dovecot_file.type == 'kv'
+  notify:
+    - dovecot reload
+
+- name: Configure raw support files
+  ansible.builtin.template:
+    src: file_raw.j2
+    dest: "{{ dovecot_config_dir }}/{{ dovecot_file.filename }}"
+    lstrip_blocks: "yes"
+    trim_blocks: "yes"
+    owner: "{{ dovecot_owner | d(dovecot_default_owner) }}"
+    group: "{{ dovecot_group | d(dovecot_default_group) }}"
+    mode: "{{ dovecot_mode | d(dovecot_default_mode) }}"
+  loop: "{{ dovecot_files | list }}"
+  loop_control:
+    loop_var: dovecot_file
+    label: "{{ dovecot_file.filename }}"
+  when:
+    - dovecot_file.filename is defined
+    - dovecot_file.state == 'present'
+    - dovecot_file.type == 'raw'
+  notify:
+    - dovecot_reload
+
+- name: Remove support files
+  file:
+    path: "{{ dovecot_config_dir }}/{{ dovecot_file.filename }}"
+    state: absent
+  loop: "{{ dovecot_files }}"
+  loop_control:
+    loop_var: dovecot_file
+    label: "{{ dovecot_file.filename }}"
+  when:
+    - dovecot_file.filename is defined
+    - dovecot_file.state == 'absent'
+  notify:
+    - dovecot reload
+
+- name: Copy file with owner and permissions
+  copy:
+    src: files/quota_warning.sh
+    dest: "{{ dovecot_config_dir }}/quota_warning.sh"
+    owner: "{{ dovecot_owner | d(dovecot_default_owner) }}"
+    group: "{{ dovecot_group | d(dovecot_default_group) }}"
+    mode: "{{ dovecot_mode | d(dovecot_default_mode) }}"
+  notify:
+    - dovecot reload

@@ -1,2 +1,12 @@
 ---
 # Role handlers
+
+- name: Reload dovecot daemon
+  service:
+    name: dovecot
+    state: reloaded
+  listen:
+    - dovecot reload
+  tags:
+    - role::dovecot
+    - role::dovecot::service

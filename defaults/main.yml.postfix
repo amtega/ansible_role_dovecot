@@ -1,0 +1,95 @@
+---
+# Role default lower priority variables
+
+# The parameters of this role support two syntaxes
+#
+# adding the role prefix to each native parameter:
+#
+#   postfix_main_param_<p1>: <v1>
+#   postfix_main_param_<p2>: <v2>
+#
+# or adding the native parameters in a dictionary: 
+#
+#   postfix_main_params:
+#     <p1>: <v1>
+#     <p2>: <v2>
+#
+# if a parameter is present on both sintaxes, the role prefix syntax 
+# takes precedence.
+#            
+# the parameters in this role are not restricted, you can use any of 
+# them and postfix will check the validity of the configuration. 
+#
+# see postconf(5) for all possible parameters.
+#
+#
+# example configuration:
+# ----------------------
+#
+# postfix_main_param_myorigin: $mydomain
+#
+# postfix_main_params:
+#   mydestination: 
+#     - $myhostname 
+#     - $mydomain
+#     - localhost.$mydomain 
+#     - localhost 
+#   relayhost: [firewall.example.com]
+#   relay_domains:
+#   mynetworks: 
+#     - 127.0.0.0/8
+#     - 10.0.0.0/24
+#
+# result:
+# -------
+#
+# myorigin = $mydomain
+# mydestination = $myhostname
+#                 $mydomain
+#                 localhost.$mydomain
+#                 localhost
+# relayhost = [firewall.example.com]
+# relay_domains = 
+# mynetworks = 127.0.0.0/8
+#              10.0.0.0/24
+#
+# For more examples look at:
+#
+# http://www.postfix.org/BASIC_CONFIGURATION_README.html 
+# http://www.postfix.org/STANDARD_CONFIGURATION_README.html
+
+postfix_main_params: {}
+
+# postfix can use lookup tables for sql queries, ldap queries, 
+# file-based databases, regular expressions and so on. 
+#
+# postfix_files accepts a list of dicts.
+#
+#  - filename: "ldap_alias.cf"
+#    description: "Search ldap alias"
+#    state: "present"
+#    lookup_table: "ldap"
+#    separator: "="
+#    contents:
+#      bind_dn: "cn=postfix,dc=example,dc=com"
+#      bind_pw: "XXXXXXXX"
+#      bind: "yes"
+#      server_host: "ldap.example.com"
+#      server_port: "389"
+#      version: "3"
+#      query_filter: "(mailAlternateAddress=%s)"
+#      search_base: "dc=example,dc=com"
+#
+#  - filename: "transport"
+#    description: "Transport rules"
+#    state: "present"
+#    lookup_table: "hash"
+#    contents:
+#        - >-
+#          foobar@example.com  smtp:mx.example.com
+#        - >-
+#          spam.com                :discard
+#
+# for more options check the *_tables man pages.
+
+postfix_files: []
