@@ -1,92 +1,95 @@
 ---
 # Role configure tasks
 
-- name: Configure local.conf file
-  ansible.builtin.template:
-    src: config.j2
-    dest: "{{ dovecot_config_dir }}/local.conf"
-    owner: "{{ dovecot_owner | d(dovecot_default_owner) }}"
-    group: "{{ dovecot_group | d(dovecot_default_group) }}"
-    mode: "{{ dovecot_mode | d(dovecot_default_mode) }}"
-  vars: 
-    _dovecot_params: >-
-      {{ lookup('template', 'params.j2') 
-         | regex_replace('\\\\', '\\')
-         | from_yaml }}
-  notify:
-    - dovecot reload
+- block:
+    - name: Configure local.conf file
+      ansible.builtin.template:
+        src: config.j2
+        dest: "{{ dovecot_config_dir }}/local.conf"
+        owner: "{{ dovecot_owner | d(dovecot_default_owner) }}"
+        group: "{{ dovecot_group | d(dovecot_default_group) }}"
+        mode: "{{ dovecot_mode | d(dovecot_default_mode) }}"
+      vars:
+        _dovecot_params: >-
+          {{ lookup('template', 'params.j2')
+             | regex_replace('\\\\', '\\')
+             | from_yaml }}
+      notify:
+        - dovecot reload
 
-- name: Configure support files
-  ansible.builtin.template:
-    src: support_file.j2
-    dest: "{{ dovecot_config_dir }}/{{ dovecot_file.filename }}"
-    owner: "{{ dovecot_file.owner | d(dovecot_default_owner) }}"
-    group: "{{ dovecot_file.group | d(dovecot_default_group) }}"
-    mode: "{{ dovecot_file.mode | d(dovecot_default_mode) }}"
-  loop: "{{ dovecot_files | list }}"
-  loop_control:
-    loop_var: dovecot_file
-    label: "{{ dovecot_file.filename }}"
-  when:
-    - dovecot_file.filename is defined
-    - dovecot_file.state == 'present'
-    - dovecot_file.type is defined
-    - dovecot_file.type == 'kv'
-  notify:
-    - dovecot reload
-  tags: 
-    - ahora
+    - name: Setup support files
+      ansible.builtin.template:
+        src: support_file.j2
+        dest: "{{ dovecot_config_dir }}/{{ dovecot_file.filename }}"
+        owner: "{{ dovecot_file.owner | d(dovecot_default_owner) }}"
+        group: "{{ dovecot_file.group | d(dovecot_default_group) }}"
+        mode: "{{ dovecot_file.mode | d(dovecot_default_mode) }}"
+      loop: "{{ dovecot_files | list }}"
+      loop_control:
+        loop_var: dovecot_file
+        label: "{{ dovecot_file.filename }}"
+      when:
+        - dovecot_file.filename is defined
+        - dovecot_file.state == 'present'
+        - dovecot_file.type is defined
+        - dovecot_file.type == 'kv'
+      notify:
+        - dovecot reload
 
-- name: Copy support files
-  copy:
-    src: "{{ dovecot_file.filename }}"
-    dest: "{{ dovecot_config_dir }}/{{ dovecot_file.filename }}"
-    owner: "{{ dovecot_file.owner | d(dovecot_default_owner) }}"
-    group: "{{ dovecot_file.group | d(dovecot_default_group) }}"
-    mode: "{{ dovecot_file.mode | d(dovecot_default_mode) }}"
-  loop: "{{ dovecot_files | list }}"
-  loop_control:
-    loop_var: dovecot_file
-    label: "{{ dovecot_file.filename }}"
-  when:
-    - dovecot_file.filename is defined
-    - dovecot_file.state == 'present'
-    - dovecot_file.type is defined and dovecot_file.type == 'copy'
-      or dovecot_file.type is not defined
-    - dovecot_file.content is not defined 
-  notify:
-    - dovecot reload
+    - name: Copy support files
+      copy:
+        src: "{{ dovecot_file.filename }}"
+        dest: "{{ dovecot_config_dir }}/{{ dovecot_file.filename }}"
+        owner: "{{ dovecot_file.owner | d(dovecot_default_owner) }}"
+        group: "{{ dovecot_file.group | d(dovecot_default_group) }}"
+        mode: "{{ dovecot_file.mode | d(dovecot_default_mode) }}"
+      loop: "{{ dovecot_files | list }}"
+      loop_control:
+        loop_var: dovecot_file
+        label: "{{ dovecot_file.filename }}"
+      when:
+        - dovecot_file.filename is defined
+        - dovecot_file.state == 'present'
+        - dovecot_file.type is defined and dovecot_file.type == 'copy'
+          or dovecot_file.type is not defined
+        - dovecot_file.content is not defined
+      notify:
+        - dovecot reload
 
-- name: Copy content support files
-  copy:
-    content: "{{ dovecot_file.content }}"
-    dest: "{{ dovecot_config_dir }}/{{ dovecot_file.filename }}"
-    owner: "{{ dovecot_file.owner | d(dovecot_default_owner) }}"
-    group: "{{ dovecot_file.group | d(dovecot_default_group) }}"
-    mode: "{{ dovecot_file.mode | d(dovecot_default_mode) }}"
-  loop: "{{ dovecot_files | list }}"
-  loop_control:
-    loop_var: dovecot_file
-    label: "{{ dovecot_file.filename }}"
-  when:
-    - dovecot_file.filename is defined
-    - dovecot_file.state == 'present'
-    - dovecot_file.type is defined and dovecot_file.type == 'copy'
-      or dovecot_file.type is not defined
-    - dovecot_file.content is defined and dovecot_file.content
-  notify:
-    - dovecot reload
+    - name: Setup content support files
+      copy:
+        content: "{{ dovecot_file.content }}"
+        dest: "{{ dovecot_config_dir }}/{{ dovecot_file.filename }}"
+        owner: "{{ dovecot_file.owner | d(dovecot_default_owner) }}"
+        group: "{{ dovecot_file.group | d(dovecot_default_group) }}"
+        mode: "{{ dovecot_file.mode | d(dovecot_default_mode) }}"
+      loop: "{{ dovecot_files | list }}"
+      loop_control:
+        loop_var: dovecot_file
+        label: "{{ dovecot_file.filename }}"
+      when:
+        - dovecot_file.filename is defined
+        - dovecot_file.state == 'present'
+        - dovecot_file.type is defined and dovecot_file.type == 'copy'
+          or dovecot_file.type is not defined
+        - dovecot_file.content is defined and dovecot_file.content
+      notify:
+        - dovecot reload
 
-- name: Remove support files
-  file:
-    path: "{{ dovecot_config_dir }}/{{ dovecot_file.filename }}"
-    state: absent
-  loop: "{{ dovecot_files }}"
-  loop_control:
-    loop_var: dovecot_file
-    label: "{{ dovecot_file.filename }}"
-  when:
-    - dovecot_file.filename is defined
-    - dovecot_file.state == 'absent'
-  notify:
-    - dovecot reload
+    - name: Remove support files
+      file:
+        path: "{{ dovecot_config_dir }}/{{ dovecot_file.filename }}"
+        state: absent
+      loop: "{{ dovecot_files }}"
+      loop_control:
+        loop_var: dovecot_file
+        label: "{{ dovecot_file.filename }}"
+      when:
+        - dovecot_file.filename is defined
+        - dovecot_file.state == 'absent'
+      notify:
+        - dovecot reload
+        
+  tags:
+    - role::dovecot
+    - role::dovecot::configure

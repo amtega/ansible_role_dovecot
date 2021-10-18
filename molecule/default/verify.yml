@@ -112,7 +112,6 @@
     - name: Rename folder
       expect:
         command: socat - tcp-connect:127.0.0.1:143
-        #timeout: 5
         echo: yes
         responses:
           "Dovecot ready": ". login  {{ test_user }} {{ test_pass }}"

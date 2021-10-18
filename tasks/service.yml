@@ -6,3 +6,6 @@
     name: dovecot
     enabled: yes
     state: started
+  tags:
+    - role::dovecot
+    - role::dovecot::service
