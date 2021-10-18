@@ -31,6 +31,16 @@ This is an example playbook:
             separator: "/"
 ```
 
+## Testing
+
+Tests are based on [molecule with docker containers](https://molecule.readthedocs.io/en/latest/installation.html).
+
+```shell
+cd amtega.dovecot
+
+molecule test --all
+```
+
 ## License
 
 Copyright (C) 2021 AMTEGA - Xunta de Galicia
