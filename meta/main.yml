@@ -20,4 +20,11 @@ galaxy_info:
         - 34
   galaxy_tags: []
 
-dependencies: []
+dependencies: 
+#  - role: amtega.packages
+#    vars:
+#      packages_python_virtualenv: /var/lib/ansible/venv
+#      packages_python:
+#        all:
+#          all:
+#            - "pexpect>=3.3": present

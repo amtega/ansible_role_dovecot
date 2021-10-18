@@ -3,5 +3,210 @@
 - name: Verify
   hosts: molecule_hosts
   gather_facts: no
+  vars:
+    ansible_python_interpreter: /var/lib/ansible/venv/bin/python3
+
+  roles:
+
+#    - role: amtega.packages
+#      vars:
+#        packages_os:
+#          all:
+#            all:
+#          centos:
+#            7:
+#          redhat:
+#            7:
+#            8:
+#          fedora:
+#            all:
+#  
+#        packages_python:
+#          all:
+#            all:
+#              "pexpect>=3.3": present
+
+
   tasks:
-#    - debug: msg="Verify to be done"
+    - name: Check for valid dovecot banner
+      wait_for:
+        host: 127.0.0.1
+        delay: 1
+        port: 143
+        search_regex: "^\\* OK .* Dovecot ready\\."
+        timeout: 5
+
+    - name: Test login with correct password
+      expect:
+        command: socat - tcp-connect:127.0.0.1:143
+        timeout: 5
+        echo: yes
+        responses:
+          "Dovecot ready": ". login  {{ test_user }} {{ test_pass }}"
+          "Logged in": ". logout"
+      register: login_result
+      changed_when: no
+      failed_when: 
+        - login_result.stdout is not search("Logged in")
+
+    - name: Test login with incorrect password
+      expect:
+        command: socat - tcp-connect:127.0.0.1:143
+        timeout: 10
+        echo: yes
+        responses:
+          "Dovecot ready": ". login xxxx yyyy"
+          "Authentication failed": ". logout"
+      register: login_result
+      changed_when: no
+      failed_when: 
+        - login_result.stdout is not search("AUTHENTICATIONFAILED")
+
+    - name: Get timestamp
+      set_fact:
+        timestamp: "{{ lookup('pipe','date +%s') }}"
+
+    - name: Send basic mail
+      mail:
+        host: 127.0.0.1
+        port: 25
+        from: "foobar@example.com"
+        to: "user001@example.com"
+        subject: "Basic mail"
+        body: "{{ timestamp }}"
+#      failed_when: yes
+
+    - name: Test select folder
+      expect:
+        command: socat - tcp-connect:127.0.0.1:143
+        timeout: 5
+        echo: yes
+        responses:
+          "Dovecot ready": ". login  {{ test_user }} {{ test_pass }}"
+          "Logged in": "myinbox select INBOX"
+          "Select completed": ". logout"
+      register: select_folder_result
+      changed_when: no
+      failed_when:
+        - select_folder_result.stdout is not search("myinbox OK")
+        
+    - name: Create folder
+      expect:
+        command: socat - tcp-connect:127.0.0.1:143
+        timeout: 5
+        echo: yes
+        responses:
+          "Dovecot ready": ". login  {{ test_user }} {{ test_pass }}"
+          "Logged in": "cr create my_first_folder"
+          "cr OK Create completed": ". logout"
+      register: create_folder_result
+      changed_when: no
+      failed_when:
+        - create_folder_result.stdout is not search("cr OK Create completed")
+        
+    - name: Subscribe folder
+      expect:
+        command: socat - tcp-connect:127.0.0.1:143
+        timeout: 5
+        echo: yes
+        responses:
+          "Dovecot ready": ". login  {{ test_user }} {{ test_pass }}"
+          "Logged in": "sub subscribe my_first_folder"
+          "sub OK Subscribe completed": ". logout"
+      register: subscribe_folder_result
+      changed_when: no
+      failed_when:
+        - subscribe_folder_result.stdout 
+          is not search("sub OK Subscribe completed")
+
+    - name: Unsubscribe folder
+      expect:
+        command: socat - tcp-connect:127.0.0.1:143
+        timeout: 10
+        echo: yes
+        responses:
+          "Dovecot ready": ". login  {{ test_user }} {{ test_pass }}"
+          "Logged in": "uns unsubscribe my_first_folder"
+          "uns OK Unsubscribe completed": ". logout"
+      register: unsubscribe_folder_result
+      changed_when: no
+      failed_when:
+        - unsubscribe_folder_result.stdout 
+          is not search("uns OK Unsubscribe completed")
+
+    - name: Rename folder
+      expect:
+        command: socat - tcp-connect:127.0.0.1:143
+        #timeout: 5
+        echo: yes
+        responses:
+          "Dovecot ready": ". login  {{ test_user }} {{ test_pass }}"
+          "Logged in": "ren rename my_first_folder my_second_folder"
+          "ren OK Rename completed": ". logout"
+      register: create_folder_result
+      changed_when: no
+      failed_when:
+        - create_folder_result.stdout is not search("ren OK Rename completed")
+
+    - name: Download mail
+      expect:
+        command: socat - tcp-connect:127.0.0.1:143
+        timeout: 5
+        echo: yes
+        responses:
+          "Dovecot ready": ". login  {{ test_user }} {{ test_pass }}"
+          "Logged in": "myinbox select INBOX"
+          "myinbox OK": "ff fetch 1 (body[])"
+          "ff OK Fetch completed": ". logout"
+      register: download_mail_result
+      changed_when: no
+      failed_when: >-
+        download_mail_result.stdout 
+        is not search( (timestamp ~ '\n\n') | b64encode )
+
+    - name: Search mail
+      expect:
+        command: socat - tcp-connect:127.0.0.1:143
+        timeout: 5
+        echo: yes
+        responses:
+          "Dovecot ready": ". login  {{ test_user }} {{ test_pass }}"
+          "Logged in": "myinbox select INBOX"
+          "myinbox OK": 's uid search subject "Basic mail"'
+          "s OK Search completed": ". logout"
+      register: search_mail_result
+      changed_when: no
+      failed_when: >-
+        search_mail_result.stdout is not regex("\* SEARCH \d")
+
+    - name: Copy mail
+      expect:
+        command: socat - tcp-connect:127.0.0.1:143
+        timeout: 5
+        echo: yes
+        responses:
+          "Dovecot ready": ". login  {{ test_user }} {{ test_pass }}"
+          "Logged in": "myinbox select INBOX"
+          "Select completed": "co copy 1 inbox"
+          "Copy completed": ". logout"
+      register: copy_mail_result
+      changed_when: no
+      failed_when: >-
+        copy_mail_result.stdout is not search("Copy completed")
+
+    - name: Delete mail
+      expect:
+        command: socat - tcp-connect:127.0.0.1:143
+        timeout: 5
+        echo: yes
+        responses:
+          "Dovecot ready": ". login  {{ test_user }} {{ test_pass }}"
+          "Logged in": "myinbox select INBOX"
+          "myinbox OK": "del store 1 +FLAGS (\\Deleted)"
+          "del OK Store completed": "exp expunge"
+          "exp OK Expunge completed": ". logout"
+      register: delete_mail_result
+      changed_when: no
+      failed_when: >-
+        delete_mail_result.stdout is not search(" 1 EXPUNGE")
+        or delete_mail_result.stdout is not search("del OK Store completed")

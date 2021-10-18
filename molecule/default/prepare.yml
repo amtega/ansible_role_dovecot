@@ -3,3 +3,57 @@
 - name: Prepare
   hosts: molecule_hosts
   gather_facts: no
+
+  roles:
+    - role: amtega.packages
+      vars:
+        packages_python_virtualenv_site_packages: no
+        packages_python_set_ansible_interpreter: no         
+        packages_python:
+          all:
+            all:
+              - pexpect: latest
+        packages_os:
+          all:
+            all:
+              - socat: latest
+              - python-pip: present  
+  tasks:
+
+#    - name: prueba paquete
+#      command:
+#        cmd: "/var/lib/ansible/venv/bin/pip3 install pexpect"
+#      changed_when: no
+
+    - name: Add default mail folder to users
+      file:
+        path: /etc/skel/Mail
+        state: directory
+        mode: "0700"
+
+    - name: Add default dovecot folder
+      file:
+        path: "{{ dovecot_config_dir }}"
+        state: directory
+        mode: "0750"
+
+    - name: create test group
+      group:
+        name: users
+        state: present
+
+    - name: Create test user
+      user:
+        name: "{{ test_user }}"
+        password: "{{ test_pass | password_hash('sha512') }}"
+        create_home: yes
+        state: present
+        group: users
+
+    - name: Setup Dovecot
+      import_role:
+        name: amtega.dovecot
+
+    - name: Setup Postfix
+      import_role:
+        name: amtega.postfix
