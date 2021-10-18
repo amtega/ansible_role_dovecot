@@ -21,21 +21,23 @@ This is an example playbook:
   roles:
     - role: dovecot
       vars:
-        dovecot_param_passdb:
-          driver: pam
-        dovecot_param_userdb:
-          driver: passwd
-          args: "blocking=no"
-        dovecot_param_override_fields: "uid=vmail gid=vmail"
-        dovecot_param_ssl: "no"
-        dovecot_param_namespace: 
-          inbox: "yes"
-          separator: "/"
+        dovecot_params:
+          disable_plaintext_auth: "no"
+          protocols:
+            - imap
+          mail_location: "maildir:~/Mail"
+          passdb:
+            - driver: pam 
+          userdb:
+            - driver: passwd
+          namespace inbox:
+            inbox: "yes"
+            separator: "/" 
 ```
 
 ## License
 
-Copyright (C) <!-- YEAR --> AMTEGA - Xunta de Galicia
+Copyright (C) 2021 AMTEGA - Xunta de Galicia
 
 This role is free software: you can redistribute it and/or modify it under the terms of:
 
