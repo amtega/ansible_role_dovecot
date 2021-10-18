@@ -12,21 +12,6 @@ driver:
   name: docker
 lint: "${MOLECULE_SCENARIO_DIRECTORY}/linters.sh"
 platforms:
-#  - name: "centos6-${INSTANCE_UUID:-1}"
-#    image: centos:6
-#    dockerfile: Dockerfile.centos6.j2
-#    # Only required for systemd enabled containers
-#    # dockerfile: Dockerfile.systemd.j2
-#    # command: /sbin/init
-#    # tmpfs:
-#    #   - /run
-#    #   - /tmp
-#    # volumes:
-#    #   - /sys/fs/cgroup:/sys/fs/cgroup:ro
-#    groups:
-#      - molecule_hosts
-#      - molecule_hosts_centos
-#      - molecule_hosts_centos_6
   - name: "centos7-${INSTANCE_UUID:-1}"
     image: centos:7
     dockerfile: Dockerfile.systemd.j2
@@ -40,46 +25,45 @@ platforms:
       - molecule_hosts
       - molecule_hosts_centos
       - molecule_hosts_centos_7
-#  - name: "centos8-${INSTANCE_UUID:-1}"
-#    image: centos:8
-#    dockerfile: Dockerfile.systemd.j2
-#    command: /sbin/init
-#    tmpfs:
-#      - /run
-#      - /tmp
-#    volumes:
-#      - /sys/fs/cgroup:/sys/fs/cgroup:ro
-#    groups:
-#      - molecule_hosts
-#      - molecule_hosts_centos
-#      - molecule_hosts_centos_8
-#  - name: "fedora33-${INSTANCE_UUID:-1}"
-#    image: fedora:33
-#    dockerfile: Dockerfile.systemd.j2
-#    command: /sbin/init
-#    tmpfs:
-#      - /run
-#      - /tmp
-#    volumes:
-#      - /sys/fs/cgroup:/sys/fs/cgroup:ro
-#    groups:
-#      - molecule_hosts
-#      - molecule_hosts_fedora
-#      - molecule_hosts_fedora_33
-#  - name: "fedora34-${INSTANCE_UUID:-1}"
-#    image: fedora:34
-#    Only required for systemd enabled containers
-#    dockerfile: Dockerfile.systemd.j2
-#    command: /sbin/init
-#    tmpfs:
-#      - /run
-#      - /tmp
-#    volumes:
-#      - /sys/fs/cgroup:/sys/fs/cgroup:ro
-#    groups:
-#      - molecule_hosts
-#      - molecule_hosts_fedora
-#      - molecule_hosts_fedora_34
+  - name: "centos8-${INSTANCE_UUID:-1}"
+    image: centos:8
+    dockerfile: Dockerfile.systemd.j2
+    command: /sbin/init
+    tmpfs:
+      - /run
+      - /tmp
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    groups:
+      - molecule_hosts
+      - molecule_hosts_centos
+      - molecule_hosts_centos_8
+  - name: "fedora33-${INSTANCE_UUID:-1}"
+    image: fedora:33
+    dockerfile: Dockerfile.systemd.j2
+    command: /sbin/init
+    tmpfs:
+      - /run
+      - /tmp
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    groups:
+      - molecule_hosts
+      - molecule_hosts_fedora
+      - molecule_hosts_fedora_33
+  - name: "fedora34-${INSTANCE_UUID:-1}"
+    image: fedora:34
+    dockerfile: Dockerfile.systemd.j2
+    command: /sbin/init
+    tmpfs:
+      - /run
+      - /tmp
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    groups:
+      - molecule_hosts
+      - molecule_hosts_fedora
+      - molecule_hosts_fedora_34
 provisioner:
   name: ansible
   config_options:
@@ -87,7 +71,6 @@ provisioner:
       callback_enabled: profile_tasks
       action_plugins: $PWD/action_plugins
   inventory:
-    vars:
     hosts:
       molecule_hosts:
         vars:
@@ -119,17 +102,6 @@ provisioner:
               - permit_mynetworks
               - reject
             home_mailbox: Mail/
-#          postfix_default_owner: root
-#          postfix_default_group: postfix
-#          postfix_default_mode: "0640"
-#          postfix_packages:
-#            - postfix
-#          postfix_config_dir: /etc/postfix
-#          postfix_local_database_types:
-#            - btree
-#            - cdb
-#            - dbm
-#            - hash
       molecule_hosts_fedora:
         vars:
           ansible_python_interpreter: /usr/bin/python3

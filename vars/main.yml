@@ -1,31 +1,8 @@
 ---
-# vars file for amtega.dovecot
+# Role variables
 
 dovecot_default_owner: dovecot
 dovecot_default_group: dovecot
-dovecot_default_mode: "0640"
+dovecot_default_mode: 0640
 
 dovecot_config_dir: /etc/dovecot
-
-dovecot_system_packages: []
-#  - python2-dnf
-
-dovecot_packages_os:
-  all:
-    all:
-      dovecot: present
-      dovecot-mysql: present
-      dovecot-pigeonhole: present
-
-#dovecot_packages: []
-#
-#  - dovecot
-#  - dovecot-mysql
-#  - dovecot-pigeonhole
-
-
-#dovecot_poolmon_script_path: /usr/local/sbin
-#
-#dovecot_poolmon_packages:
-#  - perl-IO-Socket-INET6
-#  - perl-Sys-Syslog
