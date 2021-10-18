@@ -3,30 +3,6 @@
 - name: Verify
   hosts: molecule_hosts
   gather_facts: no
-  vars:
-    ansible_python_interpreter: /var/lib/ansible/venv/bin/python3
-
-  roles:
-
-#    - role: amtega.packages
-#      vars:
-#        packages_os:
-#          all:
-#            all:
-#          centos:
-#            7:
-#          redhat:
-#            7:
-#            8:
-#          fedora:
-#            all:
-#  
-#        packages_python:
-#          all:
-#            all:
-#              "pexpect>=3.3": present
-
-
   tasks:
     - name: Check for valid dovecot banner
       wait_for:
@@ -46,7 +22,7 @@
           "Logged in": ". logout"
       register: login_result
       changed_when: no
-      failed_when: 
+      failed_when:
         - login_result.stdout is not search("Logged in")
 
     - name: Test login with incorrect password
@@ -59,7 +35,7 @@
           "Authentication failed": ". logout"
       register: login_result
       changed_when: no
-      failed_when: 
+      failed_when:
         - login_result.stdout is not search("AUTHENTICATIONFAILED")
 
     - name: Get timestamp
@@ -74,7 +50,6 @@
         to: "user001@example.com"
         subject: "Basic mail"
         body: "{{ timestamp }}"
-#      failed_when: yes
 
     - name: Test select folder
       expect:
@@ -89,7 +64,7 @@
       changed_when: no
       failed_when:
         - select_folder_result.stdout is not search("myinbox OK")
-        
+
     - name: Create folder
       expect:
         command: socat - tcp-connect:127.0.0.1:143
@@ -103,7 +78,7 @@
       changed_when: no
       failed_when:
         - create_folder_result.stdout is not search("cr OK Create completed")
-        
+
     - name: Subscribe folder
       expect:
         command: socat - tcp-connect:127.0.0.1:143
@@ -116,7 +91,7 @@
       register: subscribe_folder_result
       changed_when: no
       failed_when:
-        - subscribe_folder_result.stdout 
+        - subscribe_folder_result.stdout
           is not search("sub OK Subscribe completed")
 
     - name: Unsubscribe folder
@@ -131,7 +106,7 @@
       register: unsubscribe_folder_result
       changed_when: no
       failed_when:
-        - unsubscribe_folder_result.stdout 
+        - unsubscribe_folder_result.stdout
           is not search("uns OK Unsubscribe completed")
 
     - name: Rename folder
@@ -161,7 +136,7 @@
       register: download_mail_result
       changed_when: no
       failed_when: >-
-        download_mail_result.stdout 
+        download_mail_result.stdout
         is not search( (timestamp ~ '\n\n') | b64encode )
 
     - name: Search mail
@@ -210,3 +185,8 @@
       failed_when: >-
         delete_mail_result.stdout is not search(" 1 EXPUNGE")
         or delete_mail_result.stdout is not search("del OK Store completed")
+
+  vars:
+    # Ensure we use virtualvenv created by amtega.package role
+
+    ansible_python_interpreter: /var/lib/ansible/venv/bin/python3

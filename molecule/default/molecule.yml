@@ -108,12 +108,12 @@ provisioner:
           postfix_main_params:
             mydomain: example.com
             inet_protocols: ipv4
-            mydestination: 
-              - $$myhostname 
+            mydestination:
+              - $$myhostname
               - $$mydomain
-              - localhost.$$mydomain 
-              - localhost 
-            mynetworks: 
+              - localhost.$$mydomain
+              - localhost
+            mynetworks:
               - 127.0.0.0/8
             smtpd_recipient_restrictions:
               - permit_mynetworks
