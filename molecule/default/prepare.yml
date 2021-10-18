@@ -13,14 +13,10 @@
         packages_os:
           all:
             all:
-              - socat: latest
-              - python-pip: present
+              socat: latest
   tasks:
-
-#    - name: prueba paquete
-#      command:
-#        cmd: "/var/lib/ansible/venv/bin/pip3 install pexpect"
-#      changed_when: no
+    - name: Include role internal vars
+      include_vars: ../../vars/main.yml
 
     - name: Add default mail folder to users
       file:
@@ -34,7 +30,7 @@
         state: directory
         mode: "0750"
 
-    - name: create test group
+    - name: Create test group
       group:
         name: users
         state: present
@@ -47,10 +43,6 @@
         state: present
         group: users
 
-    - name: Setup Dovecot
-      import_role:
-        name: amtega.dovecot
-
     - name: Setup Postfix
-      import_role:
+      include_role:
         name: amtega.postfix

@@ -3,15 +3,14 @@
 galaxy_info:
   role_name: dovecot
   namespace: amtega
-  author: ue00258
-  description: Dovecot smtp/imap/pop3 server
+  author: José Manuel Fandiño Pita / Juan Antonio Valiño García
+  description: Setup dovecot smtp/imap/pop3 server
   company: AMTEGA - Xunta de Galicia
   license: GPLv3 or EUPL
   min_ansible_version: 2.10
   platforms:
     - name: EL
       versions:
-        - 6
         - 7
         - 8
     - name: Fedora
@@ -20,4 +19,19 @@ galaxy_info:
         - 34
   galaxy_tags: []
 
-dependencies: []
+dependencies:
+  - role: amtega.check_platform
+    vars:
+      check_platform_distributions:
+        centos: 7
+        fedora: 33
+        redhat: 7
+
+  - role: amtega.packages
+    vars:
+      packages_os:
+        all:
+          all:
+            dovecot: present
+            dovecot-mysql: present
+            dovecot-pigeonhole: present

@@ -1,14 +1,10 @@
 # Ansible dovecot role
 
-This is an [Ansible](http://www.ansible.com) role for the Dovecot IMAP server
+This is an [Ansible](http://www.ansible.com) role to setup dovecot IMAP server.
 
 ## Role Variables
 
 You can use any dovecot variable, see `defaults/mail.yml` for examples.
-
-## Dependencies
-
-None.
 
 ## Usage
 
@@ -27,12 +23,12 @@ This is an example playbook:
             - imap
           mail_location: "maildir:~/Mail"
           passdb:
-            - driver: pam 
+            - driver: pam
           userdb:
             - driver: passwd
           namespace inbox:
             inbox: "yes"
-            separator: "/" 
+            separator: "/"
 ```
 
 ## License
@@ -47,4 +43,5 @@ This role is distributed in the hope that it will be useful, but WITHOUT ANY WAR
 
 ## Author Information
 
+- José Manuel Fandiño Pita
 - Juan Antonio Valiño García

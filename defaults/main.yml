@@ -1,28 +1,28 @@
 ---
 # Role default lower priority variables
 
-# The parameters of this role support two syntaxes
+# The parameters of this role support two syntaxes.
 #
-# you can add role prefix to each native parameter:
+# In the first one you can add role prefix to each native parameter:
 #
 #   dovecot_param_<p1>: <v1>
 #   dovecot_param_<p2>: <v2>
 #
-# or add native parameters in a dictionary:
+# In the second one you can add native parameters in a dictionary:
 #
 #   dovecot_params:
 #     <p1>: <v1>
 #     <p2>: <v2>
 #
-# if a parameter is present on both sintaxes, the role prefix syntax
+# If a parameter is present on both sintaxes, the role prefix syntax
 # takes precedence.
 #
-# the parameters in this role are not restricted, you can use any of
+# The parameters in this role are not restricted, you can use any of
 # them and dovecot will check the validity of the configuration.
 #
-# see doveconf(1) for default and current parametres.
+# See doveconf(1) for default and current parametres.
 #
-# example configuration:
+# Example configuration:
 # ----------------------
 #
 #  dovecot_param_passdb:
@@ -39,11 +39,11 @@
 #
 dovecot_params: {}
 
-# dovecot can use additional files to configure different types of
+# Dovecot can use additional files to configure different types of
 # dictionaries. Valid types can be "raw" for exact contents or "kv"
 # for key/value contents.
 #
-# dovecot_files accepts a list of dicts.
+# The variable dovecot_files accepts a list of dicts.
 #
 #  - filename: "dovecot-passdb-ldap.conf.ext"
 #    description: "Configure ldap for password checks"
