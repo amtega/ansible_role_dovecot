@@ -16,27 +16,27 @@
               socat: latest
   tasks:
     - name: Include role internal vars
-      include_vars: ../../vars/main.yml
+      ansible.builtin.include_vars: ../../vars/main.yml
 
     - name: Add default mail folder to users
-      file:
+      ansible.builtin.file:
         path: /etc/skel/Mail
         state: directory
         mode: "0700"
 
     - name: Add default dovecot folder
-      file:
+      ansible.builtin.file:
         path: "{{ dovecot_config_dir }}"
         state: directory
         mode: "0750"
 
     - name: Create test group
-      group:
+      ansible.builtin.group:
         name: users
         state: present
 
     - name: Create test user
-      user:
+      ansible.builtin.user:
         name: "{{ test_user }}"
         password: "{{ test_pass | password_hash('sha512') }}"
         create_home: yes
@@ -44,5 +44,5 @@
         group: users
 
     - name: Setup Postfix
-      include_role:
+      ansible.builtin.include_role:
         name: amtega.postfix

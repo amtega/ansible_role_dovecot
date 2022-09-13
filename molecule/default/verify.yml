@@ -5,7 +5,7 @@
   gather_facts: no
   tasks:
     - name: Check for valid dovecot banner
-      wait_for:
+      ansible.builtin.wait_for:
         host: 127.0.0.1
         delay: 1
         port: 143
@@ -13,7 +13,7 @@
         timeout: 5
 
     - name: Test login with correct password
-      expect:
+      ansible.builtin.expect:
         command: socat - tcp-connect:127.0.0.1:143
         timeout: 5
         echo: yes
@@ -26,7 +26,7 @@
         - login_result.stdout is not search("Logged in")
 
     - name: Test login with incorrect password
-      expect:
+      ansible.builtin.expect:
         command: socat - tcp-connect:127.0.0.1:143
         timeout: 10
         echo: yes
@@ -38,8 +38,8 @@
       failed_when:
         - login_result.stdout is not search("AUTHENTICATIONFAILED")
 
-    - name: Get timestamp
-      set_fact:
+    - name: Get timestamp  # noqa jinja[spacing]
+      ansible.builtin.set_fact:
         timestamp: "{{ lookup('pipe','date +%s') }}"
 
     - name: Send basic mail
@@ -52,7 +52,7 @@
         body: "{{ timestamp }}"
 
     - name: Test select folder
-      expect:
+      ansible.builtin.expect:
         command: socat - tcp-connect:127.0.0.1:143
         timeout: 5
         echo: yes
@@ -66,7 +66,7 @@
         - select_folder_result.stdout is not search("myinbox OK")
 
     - name: Create folder
-      expect:
+      ansible.builtin.expect:
         command: socat - tcp-connect:127.0.0.1:143
         timeout: 5
         echo: yes
@@ -80,7 +80,7 @@
         - create_folder_result.stdout is not search("cr OK Create completed")
 
     - name: Subscribe folder
-      expect:
+      ansible.builtin.expect:
         command: socat - tcp-connect:127.0.0.1:143
         timeout: 5
         echo: yes
@@ -95,7 +95,7 @@
           is not search("sub OK Subscribe completed")
 
     - name: Unsubscribe folder
-      expect:
+      ansible.builtin.expect:
         command: socat - tcp-connect:127.0.0.1:143
         timeout: 10
         echo: yes
@@ -110,7 +110,7 @@
           is not search("uns OK Unsubscribe completed")
 
     - name: Rename folder
-      expect:
+      ansible.builtin.expect:
         command: socat - tcp-connect:127.0.0.1:143
         echo: yes
         responses:
@@ -123,7 +123,7 @@
         - create_folder_result.stdout is not search("ren OK Rename completed")
 
     - name: Download mail
-      expect:
+      ansible.builtin.expect:
         command: socat - tcp-connect:127.0.0.1:143
         timeout: 5
         echo: yes
@@ -139,7 +139,7 @@
         is not search( (timestamp ~ '\n\n') | b64encode )
 
     - name: Search mail
-      expect:
+      ansible.builtin.expect:
         command: socat - tcp-connect:127.0.0.1:143
         timeout: 5
         echo: yes
@@ -154,7 +154,7 @@
         search_mail_result.stdout is not regex("\* SEARCH \d")
 
     - name: Copy mail
-      expect:
+      ansible.builtin.expect:
         command: socat - tcp-connect:127.0.0.1:143
         timeout: 5
         echo: yes
@@ -169,7 +169,7 @@
         copy_mail_result.stdout is not search("Copy completed")
 
     - name: Delete mail
-      expect:
+      ansible.builtin.expect:
         command: socat - tcp-connect:127.0.0.1:143
         timeout: 5
         echo: yes
