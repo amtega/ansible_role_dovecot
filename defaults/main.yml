@@ -67,7 +67,7 @@ dovecot_params: {}
 #     type: "raw"
 #     state: present
 #     content: |-
-#       # pragma: allowlist nextline secret
+# pragma: allowlist nextline secret
 #       connect = host=sqlserver dbname=dovecot user=dovecot password=XXXXXX
 #       map {
 #         pattern = priv/quota/storage
