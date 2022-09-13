@@ -1,8 +1,7 @@
 ---
-# Role service tasks
 
 - name: Enable and start dovecot
-  service:
+  ansible.builtin.service:
     name: dovecot
     enabled: yes
     state: started

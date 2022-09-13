@@ -1,5 +1,4 @@
 ---
-# Role tasks
 
 - name: Configure dovecot
   include_tasks: configure.yml

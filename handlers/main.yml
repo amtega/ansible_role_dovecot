@@ -2,7 +2,7 @@
 # Role handlers
 
 - name: Reload dovecot daemon
-  service:
+  ansible.builtin.service:
     name: dovecot
     state: reloaded
   listen:
